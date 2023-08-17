@@ -1,0 +1,25 @@
+{
+  "name": "playerpages-node-server",
+  "version": "1.0.0",
+  "description": "Node.js HTTP Web server for PlayerPages application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanGraziano/playerpages-node-server.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP"
+  ],
+  "author": "Dan Graziano",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DanGraziano/playerpages-node-server/issues"
+  },
+  "homepage": "https://github.com/DanGraziano/playerpages-node-server#readme"
+}
