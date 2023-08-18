@@ -6,6 +6,9 @@ const usersSchema = new mongoose.Schema({
   password: { type: String, required: true },
   accountType: { type: String, required: true },
   profilePicture: { type: String, default: null }, // URL of the profile picture
+  firstName: { type: String, default: null },
+  lastName: { type: String, default: null }, 
+  birthday: { type: Date, default: null },
   likes: { type: Number, default: 0 },
   dislikes: { type: Number, default: 0 },
   numReviews: { type: Number, default: 0 },
@@ -16,10 +19,12 @@ const usersSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now } // Date when the review was created
     }
   ],
-  lists: {
-    currentlyPlaying: [{ type: String }], // Array of game IDs
-    wantToPlay: [{ type: String }], // Array of game IDs
-    played: [{ type: String }] // Array of game IDs
+  lists: { // All would be array of // Array of game IDs
+    currentlyPlaying: [{ type: String }], 
+    wantToPlay: [{ type: String }], 
+    played: [{ type: String }],
+    dislikeList: [{ type: String }],
+    likeList: [{ type: String }],
   }
 }, { collection: "users" });
 
