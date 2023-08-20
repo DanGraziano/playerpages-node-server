@@ -5,10 +5,12 @@ import session from 'express-session';
 import HelloController from "./controllers/hello-controller.js";
 import UserController from "./users/users-controller.js";
 import AuthController from "./users/auth-controller.js";
+import GamesController from "./controllers/games/games-controller.js";
+import ReviewsController from "./controllers/reviews/reviews-controller.js";
 import "dotenv/config";
 
 
-const CONNECTION_STRING = process.env.DB_CONNECTION_STRING;
+const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb+srv://dan:secretPassword123@cluster0.bgqxbph.mongodb.net/playerpages?retryWrites=true&w=majority";
 mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express()
@@ -64,6 +66,8 @@ app.get('/api/currentUser', (req, res) => {
 
 AuthController(app);
 UserController(app);
+GamesController(app);
+ReviewsController(app);
 HelloController(app);
 
 app.listen(PORT);
