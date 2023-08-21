@@ -112,6 +112,8 @@ const GamesController = (app) => {
         res.status(500).json({ success: false, message: 'Internal Server Error', error });
       }
     };
+    
+
   
 
   app.post("/api/games/like", likeGame);

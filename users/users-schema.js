@@ -15,11 +15,11 @@ const usersSchema = new mongoose.Schema({
   numReviews: { type: Number, default: 0 },
   numFollowers: { type: Number, default: 0 },
   numFollowing: { type: Number, default: 0 },
-  reviews: [
+  userBadges: [
     {
-      gameId: { type: String, required: true }, // ID of the game being reviewed
-      content: { type: String, required: true }, // Text of the review
-      createdOn: { type: Date, default: Date.now } // Date when the review was created
+      gameId: { type: String, required: true }, 
+      badgeType: { type: String, required: true }, // Type of badge so "Like", "Disliked", "Played", etc...
+      badgeState: { type: Boolean, default: false, required: true }
     }
   ],
   lists:{
@@ -49,6 +49,24 @@ const usersSchema = new mongoose.Schema({
     ],
 
     likeList: [
+      { 
+        gameId: { type: String, required: true }, 
+        gameName: { type: String, required: true },
+      }
+    ],
+    followersList: [
+      { 
+        userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        username: { type: String, required: true }, 
+      }
+    ],
+    followingList: [
+      { 
+        userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+        username: { type: String, required: true }, 
+      }
+    ],
+    topPickList: [
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },

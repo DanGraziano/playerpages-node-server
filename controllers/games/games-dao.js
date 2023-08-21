@@ -128,3 +128,37 @@ export const removeGameFromDislikeList = async (userId, gameId) => {
   }
 };
 
+// Function to add a game to a user's top pick list
+export const addGameToTopPickList = async (userId, gameId, gameName) => {
+  try {
+    const user = await usersModel.findById(userId);
+    if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+    }
+    user.lists.topPickList.push({ gameId, gameName });
+    const updatedUser = await user.save();
+    return updatedUser;
+  } catch (error) {
+    console.error('Error adding game to top pick list:', error);
+    throw error;
+  }
+};
+
+// Function to remove a game from a user's top pick list
+export const removeGameFromTopPickList = async (userId, gameId) => {
+  try {
+    const user = await usersModel.findById(userId);
+    if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+    }
+    user.lists.topPickList = user.lists.topPickList.filter(game => game.gameId !== gameId);
+    const updatedUser = await user.save();
+    return updatedUser;
+  } catch (error) {
+    console.error('Error removing game from top pick list:', error);
+    throw error;
+  }
+};
+
+
+

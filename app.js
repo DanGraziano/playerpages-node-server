@@ -7,6 +7,8 @@ import UserController from "./users/users-controller.js";
 import AuthController from "./users/auth-controller.js";
 import GamesController from "./controllers/games/games-controller.js";
 import ReviewsController from "./controllers/reviews/reviews-controller.js";
+import StreamerController from "./controllers/games/streamer-controller.js";
+
 import "dotenv/config";
 import bodyParser from "body-parser";
 
@@ -68,6 +70,7 @@ AuthController(app);
 UserController(app);
 GamesController(app);
 ReviewsController(app);
+StreamerController(app);
 HelloController(app);
 
 app.listen(PORT);

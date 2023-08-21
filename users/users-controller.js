@@ -10,6 +10,12 @@ const UserController = (app) => {
    app.delete('/api/users/:uid', deleteUser);
    app.put("/api/users/:userId", updateUserProfile);
    app.get('/api/users/email/:email', findUserByEmail);
+   app.get('/api/users/username/:username', findUserByUsername);
+   app.post('/api/users/:id/follow',  followUser);
+   app.delete('/api/users/:id/unfollow',  unFollowUser);
+   app.get('/api/users/:id/followData', getFollowData);
+   app.get('/api/badges/:userId/:gameId', getBadgeStates);
+   app.post('/api/badges/:userId/:gameId', updateBadgeStates);
 }
 
 const createUser = async (req, res) => {
@@ -114,6 +120,101 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-  
+const findUserByUsername = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await usersDao.findUserByUsername(username);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (err) {
+    console.error("Error finding user by username:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const followUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const followerId = req.body.followerId;
+
+    // Update the target user's followers
+    await usersModel.findByIdAndUpdate(userId, { $push: { followers: followerId } });
+
+    // Update the current user's following
+    await usersModel.findByIdAndUpdate(followerId, { $push: { following: userId } });
+
+    // Send a successful response
+    res.status(200).send({ message: 'Successfully followed user' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error following user' });
+  }
+};
+
+const unFollowUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const followerId = req.body.followerId;
+
+    // Update the target user's followers
+    await usersModel.findByIdAndUpdate(userId, { $pull: { followers: followerId } });
+
+    // Update the current user's following
+    await usersModel.findByIdAndUpdate(followerId, { $pull: { following: userId } });
+
+    // Send a successful response
+    res.status(200).send({ message: 'Successfully unfollowed user' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error unfollowing user' });
+  }
+};
+
+const getFollowData = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await usersModel.findById(userId);
+
+    if (user) {
+      const followData = {
+        followers: user.followers,
+        following: user.following
+      };
+      res.status(200).send(followData);
+    } else {
+      res.status(404).send({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching follow data' });
+  }
+};
+
+const getBadgeStates = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const gameId = req.params.gameId;
+    const badges = await usersDao.getBadgeStates(userId, gameId);
+    //res.json(badges);
+    res.json({ success: true, badges });
+
+  } catch (error) {
+    console.error('Error getting badge states:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error', error });
+  }
+};
+
+const updateBadgeStates = async (req, res) => {
+  const { userId, gameId } = req.params;
+  const badgeUpdates = req.body;
+
+  try {
+    await usersDao.updateBadgeStates(userId, gameId, badgeUpdates);
+    res.status(200).send({success: true, message: 'Badge states updated successfully.' });
+  } catch (error) {
+    console.error('Error updating badge states:', error);
+    res.status(500).send({ message: 'Failed to update badge states.' });
+  }
+};
 
 export default UserController
