@@ -27,24 +27,28 @@ const usersSchema = new mongoose.Schema({
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },
+        addedOn: { type: Date, default: Date.now }
       }
     ],
     wantToPlay: [
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },
+        addedOn: { type: Date, default: Date.now }
       }
     ],
     played: [
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },
+        addedOn: { type: Date, default: Date.now }
       }
     ],
     dislikeList: [
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },
+        addedOn: { type: Date, default: Date.now }
       }
     ],
 
@@ -52,26 +56,23 @@ const usersSchema = new mongoose.Schema({
       { 
         gameId: { type: String, required: true }, 
         gameName: { type: String, required: true },
+        addedOn: { type: Date, default: Date.now }
       }
     ],
     followersList: [
       { 
         userId: { type: mongoose.Schema.Types.ObjectId, required: true },
         username: { type: String, required: true }, 
+        addedOn: { type: Date, default: Date.now }
       }
     ],
     followingList: [
       { 
         userId: { type: mongoose.Schema.Types.ObjectId, required: true },
         username: { type: String, required: true }, 
+        addedOn: { type: Date, default: Date.now }
       }
-    ],
-    topPickList: [
-      { 
-        gameId: { type: String, required: true }, 
-        gameName: { type: String, required: true },
-      }
-    ],
+    ]
   }
 }, { collection: "users" });
 
