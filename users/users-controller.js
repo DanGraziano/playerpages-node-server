@@ -1,11 +1,14 @@
 import * as usersDao from "./users-dao.js";
+import mongoose from "mongoose";
+import usersModel from "./users-model.js";
+
 
 const UserController = (app) => {
    app.get('/api/users', findUsers)
    app.get('/api/users/:uid', findUserById);
    app.post('/api/users', createUser);
    app.delete('/api/users/:uid', deleteUser);
-   app.put('/api/users/:uid', updateUser);
+   app.put("/api/users/:userId", updateUserProfile);
    app.get('/api/users/email/:email', findUserByEmail);
 }
 
@@ -22,6 +25,11 @@ const createUser = async (req, res) => {
 const findUserById = async (req, res) => {
   try {
     const id = req.params.uid;
+      // Check if the ID is undefined or not a valid ObjectId
+      if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ message: 'Invalid user ID' });
+        return;
+      }
     const user = await usersDao.findUserById(id);
     if (user) {
       res.json(user);
@@ -90,16 +98,19 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUserProfile = async (req, res) => {
   try {
-    const id = req.params.uid;
-    const status = await usersDao.updateUser(id, req.body);
-    const user = await usersDao.findUserById(id);
-    req.session["currentUser"] = user;
-    res.json(status);
+    const userId = req.params.userId;  // Convert the user ID to an ObjectId
+    const updateData = req.body;
+    console.log("UserId to update:", userId);
+    console.log("Update data:", updateData);
+    const user = await usersModel.findByIdAndUpdate(userId, updateData, { new: true });
+    res.status(200).send({ user });
   } catch (err) {
-    console.error("Error updating user:", err);
-    res.status(500).json({ message: "Internal server error" });
+      console.error("Error during user update:", err);
+
+    console.error("Error during user update:", err);  // Log the error message
+    res.status(500).send({ message: "Custom error message" });
   }
 };
 

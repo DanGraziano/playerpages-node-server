@@ -8,7 +8,7 @@ import AuthController from "./users/auth-controller.js";
 import GamesController from "./controllers/games/games-controller.js";
 import ReviewsController from "./controllers/reviews/reviews-controller.js";
 import "dotenv/config";
-
+import bodyParser from "body-parser";
 
 const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb+srv://dan:secretPassword123@cluster0.bgqxbph.mongodb.net/playerpages?retryWrites=true&w=majority";
 mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -52,9 +52,9 @@ if (process.env.NODE_ENV !== "development") {
   
 app.use(session(sessionOptions));
 app.use(express.json());
+app.use(bodyParser.json());
 
 
-// Define the /api/currentUser endpoint
 app.get('/api/currentUser', (req, res) => {
     if (req.session.user) {
       res.json({ user: req.session.user });

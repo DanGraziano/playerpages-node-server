@@ -5,13 +5,16 @@ const usersSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   accountType: { type: String, required: true },
-  profilePicture: { type: String, default: null }, // URL of the profile picture
-  firstName: { type: String, default: null },
-  lastName: { type: String, default: null }, 
-  birthday: { type: Date, default: null },
+  profilePicture: { type: String}, // URL of the profile picture
+  bio: { type: String },
+  firstName: { type: String },
+  lastName: { type: String }, 
+  birthday: { type: Date },
   numLikes: { type: Number, default: 0 },
   numDislikes: { type: Number, default: 0 },
   numReviews: { type: Number, default: 0 },
+  numFollowers: { type: Number, default: 0 },
+  numFollowing: { type: Number, default: 0 },
   reviews: [
     {
       gameId: { type: String, required: true }, // ID of the game being reviewed
