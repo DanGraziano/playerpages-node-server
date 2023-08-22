@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import session from 'express-session';
-import HelloController from "./controllers/hello-controller.js";
 import UserController from "./users/users-controller.js";
 import AuthController from "./users/auth-controller.js";
 import GamesController from "./controllers/games/games-controller.js";
@@ -25,10 +24,10 @@ db.once('open', () => console.log('Connected to MongoDB'));
 
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // specify the allowed origin
-    methods: 'POST, GET, PUT, DELETE',  // specify the allowed methods
-    allowedHeaders: 'content-type', // specify the allowed headers
-    credentials: true, // This line is added to allow credentials (cookies)
+    origin: 'http://localhost:3000', 
+    methods: 'POST, GET, PUT, DELETE', 
+    allowedHeaders: 'content-type', 
+    credentials: true,
   };
 
 
@@ -71,6 +70,5 @@ UserController(app);
 GamesController(app);
 ReviewsController(app);
 StreamerController(app);
-HelloController(app);
 
 app.listen(PORT);

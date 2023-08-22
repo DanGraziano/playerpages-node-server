@@ -65,3 +65,68 @@ export const updateBadgeStates = async (userId, gameId, badgeUpdates) => {
     throw error;
   }
 };
+
+export const followUser = async (userId, followerId) => {
+  try {
+    // Get the follower and user objects from the database.
+    let user = await usersModel.findById(userId);
+    let follower = await usersModel.findById(followerId);
+
+    // Check if the follower and user objects are not null or undefined.
+    if (!user || !follower) {
+      throw new Error('User or follower not found.');
+    }
+
+    // Initialize the lists if they are not defined.
+    user.lists.followersList = user.lists.followersList || [];
+    follower.lists.followingList = follower.lists.followingList || [];
+
+    // Check if the user is already being followed.
+    if (user.lists.followersList.some(followerEntry => followerEntry.userId === followerId) ||
+        follower.lists.followingList.some(userEntry => userEntry.userId === userId)) {
+      throw new Error('Already following user.');
+    }
+
+    // Update the followersList of the user and the followingList of the follower.
+    user.lists.followersList.push({ userId: followerId, username: follower.username });
+    follower.lists.followingList.push({ userId: userId, username: user.username });
+
+    // Save the changes.
+    await user.save();
+    await follower.save();
+  } catch (error) {
+    console.error('Error following user:', error);
+    throw error;
+  }
+};
+
+
+
+
+
+export const unfollowUser = async (userId, followerId) => {
+  try {
+    const user = await usersModel.findById(userId);
+    const follower = await usersModel.findById(followerId);
+
+    if (!user || !follower) {
+      console.error('Error unfollowing user: user or follower not found');
+      return;
+    }
+
+    user.followersList = user.followersList.filter((id) => id !== followerId);
+    if (user.numFollowers > 0) {
+      user.numFollowers -= 1; // Decrement the numFollowers field
+    }
+    await user.save();
+
+    follower.followingList = follower.followingList.filter((id) => id !== userId);
+    if (follower.numFollowing > 0) {
+      follower.numFollowing -= 1; // Decrement the numFollowing field
+    }
+    await follower.save();
+  } catch (error) {
+    console.error('Error unfollowing user:', error);
+    throw error;
+  }
+};

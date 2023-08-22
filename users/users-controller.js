@@ -11,11 +11,15 @@ const UserController = (app) => {
    app.put("/api/users/:userId", updateUserProfile);
    app.get('/api/users/email/:email', findUserByEmail);
    app.get('/api/users/username/:username', findUserByUsername);
-   app.post('/api/users/:id/follow',  followUser);
-   app.delete('/api/users/:id/unfollow',  unFollowUser);
-   app.get('/api/users/:id/followData', getFollowData);
    app.get('/api/badges/:userId/:gameId', getBadgeStates);
    app.post('/api/badges/:userId/:gameId', updateBadgeStates);
+   app.post('/api/users/:userId/follow', followUser);
+   app.post('/api/users/:userId/unfollow', unfollowUser);
+   app.get('/api/users/:userId/followData', getFollowData);
+   app.get('/api/recentActivityAllUsers', getRecentActivity);
+   app.get('/api/admin/users', adminGetAllUsers);
+   app.delete('/api/admin/users/:uid', adminDeleteUser); 
+
 }
 
 const createUser = async (req, res) => {
@@ -135,61 +139,6 @@ const findUserByUsername = async (req, res) => {
   }
 };
 
-const followUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const followerId = req.body.followerId;
-
-    // Update the target user's followers
-    await usersModel.findByIdAndUpdate(userId, { $push: { followers: followerId } });
-
-    // Update the current user's following
-    await usersModel.findByIdAndUpdate(followerId, { $push: { following: userId } });
-
-    // Send a successful response
-    res.status(200).send({ message: 'Successfully followed user' });
-  } catch (error) {
-    res.status(500).send({ message: 'Error following user' });
-  }
-};
-
-const unFollowUser = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const followerId = req.body.followerId;
-
-    // Update the target user's followers
-    await usersModel.findByIdAndUpdate(userId, { $pull: { followers: followerId } });
-
-    // Update the current user's following
-    await usersModel.findByIdAndUpdate(followerId, { $pull: { following: userId } });
-
-    // Send a successful response
-    res.status(200).send({ message: 'Successfully unfollowed user' });
-  } catch (error) {
-    res.status(500).send({ message: 'Error unfollowing user' });
-  }
-};
-
-const getFollowData = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const user = await usersModel.findById(userId);
-
-    if (user) {
-      const followData = {
-        followers: user.followers,
-        following: user.following
-      };
-      res.status(200).send(followData);
-    } else {
-      res.status(404).send({ message: 'User not found' });
-    }
-  } catch (error) {
-    res.status(500).send({ message: 'Error fetching follow data' });
-  }
-};
-
 const getBadgeStates = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -214,6 +163,115 @@ const updateBadgeStates = async (req, res) => {
   } catch (error) {
     console.error('Error updating badge states:', error);
     res.status(500).send({ message: 'Failed to update badge states.' });
+  }
+};
+
+const followUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const followerId = req.body.followerId;
+    await usersDao.followUser(userId, followerId);
+    res.status(200).json({ message: "User followed successfully" });
+  } catch (err) {
+    console.error("Error following user:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const unfollowUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const followerId = req.body.followerId;
+    await usersDao.unfollowUser(userId, followerId);
+    res.status(200).json({ message: "User unfollowed successfully" });
+  } catch (err) {
+    console.error("Error unfollowing user:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getFollowData = async (req, res) => {
+  try {
+    const userId = req.params.userId; 
+    const user = await usersModel.findById(userId);
+
+    if (user) {
+      const followData = {
+        followers: user.lists.followersList,
+        following: user.lists.followingList
+      };
+      res.status(200).send(followData);
+    } else {
+      res.status(404).send({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching follow data' });
+  }
+};
+
+// Create an endpoint to retrieve recent activity from all users
+const getRecentActivity = async (req, res) => {
+  try {
+    // Get all users
+    const users = await usersModel.find();
+
+    // Create an array to store the recent activities
+    let recentActivity = [];
+
+    // Loop through each user and extract the recent activities from their lists
+    users.forEach((user) => {
+      const { lists } = user;
+
+      // Loop through each list in the user's lists and extract the activities
+      Object.keys(lists).forEach((listName) => {
+        const list = lists[listName];
+        list.forEach((activity) => {
+          recentActivity.push({
+            username: user.username,
+            listName,
+            gameId: activity.gameId,
+            gameName: activity.gameName,
+            addedOn: activity.addedOn
+          });
+        });
+      });
+    });
+
+    // Sort the recent activities by addedOn in descending order and limit to the latest 10
+    recentActivity.sort((a, b) => b.addedOn - a.addedOn);
+    recentActivity = recentActivity.slice(0, 10);
+
+    res.json({
+      success: true,
+      data: recentActivity
+    });
+  } catch (error) {
+    console.error('Error fetching recent activity:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching recent activity'
+    });
+  }
+}
+
+const adminGetAllUsers = async (req, res) => {
+  try {
+    const users = await usersModel.find();
+    res.json(users);
+  } catch (err) {
+    console.error("Error finding users:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const adminDeleteUser = async (req, res) => {
+  try {
+    const id = req.params.uid;
+    await usersModel.deleteOne({ _id: id });
+    res.status(204).send();
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
