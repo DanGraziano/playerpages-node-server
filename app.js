@@ -11,7 +11,7 @@ import StreamerController from "./controllers/games/streamer-controller.js";
 import "dotenv/config";
 import bodyParser from "body-parser";
 
-const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb+srv://dan:secretPassword123@cluster0.bgqxbph.mongodb.net/playerpages?retryWrites=true&w=majority";
+const CONNECTION_STRING = process.env.DB_CONNECTION_STRING
 mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express()
@@ -24,7 +24,7 @@ db.once('open', () => console.log('Connected to MongoDB'));
 
 
 const corsOptions = {
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000' || "https://melodic-biscuit-a09bed.netlify.app/", 
     methods: 'POST, GET, PUT, DELETE', 
     allowedHeaders: 'content-type', 
     credentials: true,
@@ -71,4 +71,4 @@ GamesController(app);
 ReviewsController(app);
 StreamerController(app);
 
-app.listen(PORT);
+app.listen(PORT || 4000);
